@@ -1,0 +1,2 @@
+debian/bin/lvyecoind usr/bin
+src/lvyecoind usr/lib/lvyecoin

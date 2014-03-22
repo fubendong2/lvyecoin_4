@@ -1,0 +1,33 @@
+#!/usr/bin/make -f
+# -*- mode: makefile; coding: utf-8 -*-
+
+#DEB_MAKE_CHECK_TARGET = test_lvyecoin
+#build/lvyecoind::
+#	$(if $(filter nocheck,$(DEB_BUILD_OPTIONS)),,src/test_lvyecoin)
+
+DEB_INSTALL_EXAMPLES_lvyecoind += debian/examples/*
+DEB_INSTALL_MANPAGES_lvyecoind += debian/manpages/*
+
+%:
+	dh --with bash-completion $@
+
+override_dh_auto_build:
+	cd src; $(MAKE) -f makefile.unix lvyecoind
+	$(MAKE)
+
+override_dh_auto_clean:
+	if [ -f Makefile ]; then $(MAKE) clean; else rm -rf build/; rm -f lvyecoin-qt; fi
+	cd src; $(MAKE) -f makefile.unix clean
+
+override_dh_auto_configure:
+	qmake lvyecoin-qt.pro USE_QRCODE=1
+
+override_dh_auto_test:
+	cd src; $(MAKE) -f makefile.unix test_lvyecoin
+	src/test_lvyecoin
+
+# Ensure wrapper is set executable
+binary-post-install/lvyecoind:
+	chmod +x $(cdbs_curdestdir)usr/bin/lvyecoind
+binary-post-install/lvyecoin-qt:
+	chmod +x $(cdbs_curdestdir)usr/bin/lvyecoin-qt
